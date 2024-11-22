@@ -1,3 +1,45 @@
 <resources>
     <string name="app_name">QuanLyPhim</string>
+    <string name="banner">Quản lý tài sản</string>
+    <string name="create_room">Thêm phòng</string>
+    <string name="update_room">Sửa phòng</string>
+    <string name="delete_room">Xóa phòng</string>
+    <string name="show_rooms">Danh sách phòng</string>
+
+    <string name="name_room">Tên phòng</string>
+    <string name="desc_room">Mô tả phòng</string>
+
+    <string name="create_asset">Thêm tài sản</string>
+    <string name="update_asset">Sửa tài sản</string>
+    <string name="delete_asset">Xóa tài sản</string>
+    <string name="show_assets">Danh sách tài sản</string>
+
+    <string name="name_asset">Tên tài sản</string>
+    <string name="cate_asset">Loại tài sản</string>
+    <string name="position_asset">Vị trí tài sản</string>
+    <string name="price_assets">Giá trị tài sản</string>
+
+    <string name="enter_price">Nhập giá tài sản</string>
+    <string name="search_asset_by_price">Tìm kiếm</string>
+
+    <string name="cancel">Hủy</string>
+    <string name="update">Cập nhật</string>
+    <string name="create">Thêm</string>
+    <string name="delete">Xóa</string>
+    <string name="confirm_delete">Bạn có chắc chắn xóa?</string>
+
+    <string name="delete_success">Xóa thành công!!!</string>
+    <string name="update_success">Cập nhật thành công!!!</string>
+    <string name="create_success">Thêm thành công!!!</string>
+    <string name="please_fill">Vui lòng điền đầy đủ các trường!</string>
+
+    <string name="confirm_delete_asset_in_room">Bạn có chắc chắn xóa tài sản khỏi phòng?</string>
+    <string name="delete_asset_in_room">Xóa tài sản khỏi phòng</string>
+
+    <string name="no_in_room">Chưa xác định</string>
+    <string name="add_asset_in_room">Gán tài sản</string>
+    <string name="category">Phòng</string>
+    <string name="unknonwn">Không xác định</string>
+
+    <string name="add_asset_success">Gán thành công!!</string>
 </resources>
