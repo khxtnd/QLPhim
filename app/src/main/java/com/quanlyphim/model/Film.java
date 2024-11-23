@@ -6,25 +6,34 @@ import java.io.Serializable;
 
 public class Film implements Serializable {
     private Integer id;
-    private String name;
-    private String category;
-    private String image;
-    private Integer rate;
-    private Integer categoryId;
+    private String name = "";
+    private String category = "";
+    private String desc = "";
+    private String image = "";
+    private Integer rate = 0;
+    private Integer categoryId = 0;
 
 
-    public Film(String name, String category, String image, Integer rate, Integer categoryId) {
+    public Film(String name, String category, String desc, String image, Integer rate, Integer categoryId) {
         this.name = name;
         this.category = category;
+        this.desc = desc;
         this.image = image;
         this.rate = rate;
         this.categoryId = categoryId;
     }
 
 
-    public Film(Integer id, String name, String category, String image, Integer rate, Integer categoryId) {
+    @NonNull
+    @Override
+    public String toString() {
+        return name;
+    }
+
+    public Film(Integer id, String name, String category, String desc, String image, Integer rate, Integer categoryId) {
         this.id = id;
         this.name = name;
+        this.desc = desc;
         this.category = category;
         this.image = image;
         this.rate = rate;
@@ -39,28 +48,36 @@ public class Film implements Serializable {
         return name;
     }
 
-    public String getCategory() {
-        return category;
-    }
-
-    public String getImage() {
-        return image;
-    }
-
-    public Integer getRate() {
-        return rate;
-    }
-
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getDesc() {
+        return desc;
+    }
+
+    public void setDesc(String desc) {
+        this.desc = desc;
+    }
+
+    public String getCategory() {
+        return category;
     }
 
     public void setCategory(String category) {
         this.category = category;
     }
 
+    public String getImage() {
+        return image;
+    }
+
     public void setImage(String image) {
         this.image = image;
+    }
+
+    public Integer getRate() {
+        return rate;
     }
 
     public void setRate(Integer rate) {
@@ -73,12 +90,6 @@ public class Film implements Serializable {
 
     public void setCategoryId(Integer categoryId) {
         this.categoryId = categoryId;
-    }
-
-    @NonNull
-    @Override
-    public String toString() {
-        return name;
     }
 }
 

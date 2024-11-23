@@ -4,7 +4,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,7 +19,6 @@ public class MainActivity extends AppCompatActivity implements OnClickCategoryLi
     private CategoryAdapter categoryAdapter;
     private FilmAdapter filmAdapter;
     private DatabaseHandler dbHandler;
-    private boolean isShowRooms = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,52 +30,29 @@ public class MainActivity extends AppCompatActivity implements OnClickCategoryLi
         binding.btnCreateRoom.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                moveDetailActivity(Constants.createRoom, null, null);
+                moveDetailActivity(Constants.addCate, null, null);
             }
         });
 
         binding.btnCreateAsset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                moveDetailActivity(Constants.createAsset, null, null);
+                moveDetailActivity(Constants.addFilm, null, null);
             }
         });
 
-        binding.btnshowRooms.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showAllRooms();
-            }
-        });
-
-        binding.btnShowAsset.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showAllAssets();
-            }
-        });
-
-        binding.btnSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showAssetsMorePrice();
-            }
-        });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (isShowRooms) {
-            showAllRooms();
-        } else {
-            showAllAssets();
-        }
+        showAllCategory();
+        showAllFilm();
     }
 
     @Override
     public void onClickRoom(Category category) {
-        moveDetailActivity(Constants.updateRoom, category, null);
+        moveDetailActivity(Constants.updateCate, category, null);
     }
 
     @Override
@@ -88,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements OnClickCategoryLi
     @Override
     public void deleteAsset(Film film) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(this.getResources().getString(R.string.delete_asset));
+        builder.setTitle(this.getResources().getString(R.string.delete_film));
         builder.setMessage(this.getResources().getString(R.string.confirm_delete));
 
         builder.setPositiveButton(this.getResources().getString(R.string.delete), new DialogInterface.OnClickListener() {
@@ -113,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements OnClickCategoryLi
     @Override
     public void deleteRoom(Integer id) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(this.getResources().getString(R.string.delete_room));
+        builder.setTitle(this.getResources().getString(R.string.delete_category));
         builder.setMessage(this.getResources().getString(R.string.confirm_delete));
 
         builder.setPositiveButton(this.getResources().getString(R.string.delete), new DialogInterface.OnClickListener() {
@@ -135,27 +110,22 @@ public class MainActivity extends AppCompatActivity implements OnClickCategoryLi
         dialog.show();
     }
 
-    private void showAllRooms() {
-        isShowRooms=true;
+    private void showAllCategory() {
         categoryAdapter = new CategoryAdapter(this);
-        binding.rec.setAdapter(categoryAdapter);
+        binding.recCategory.setAdapter(categoryAdapter);
         categoryAdapter.submit(dbHandler.getAllCategory());
-        binding.tvTitleList.setText(R.string.show_rooms);
     }
 
-    private void showAllAssets() {
-        isShowRooms=false;
+    private void showAllFilm() {
         filmAdapter = new FilmAdapter(this);
-        binding.rec.setAdapter(filmAdapter);
+        binding.recFilm.setAdapter(filmAdapter);
         filmAdapter.submit(dbHandler.getAllFilms());
-        binding.tvTitleList.setText(R.string.show_assets);
-
     }
 
     private void moveDetailActivity(String valueIntent, Category category, Film film) {
         Intent intent = new Intent(this, DetailActivity.class);
         intent.putExtra(Constants.nameIntent, valueIntent);
-        if (valueIntent.equals(Constants.updateRoom)) {
+        if (valueIntent.equals(Constants.updateCate)) {
             intent.putExtra(Constants.dataIntent, category);
         } else if (valueIntent.equals(Constants.updateAsset)) {
             intent.putExtra(Constants.dataIntent, film);
@@ -163,16 +133,4 @@ public class MainActivity extends AppCompatActivity implements OnClickCategoryLi
         startActivity(intent);
     }
 
-    private void showAssetsMorePrice(){
-        String price=binding.etPrice.getText().toString();
-        if(!price.isEmpty()){
-            filmAdapter = new FilmAdapter(this);
-            binding.rec.setAdapter(filmAdapter);
-            filmAdapter.submit(dbHandler.getAllAssetsMorePrice(Integer.valueOf(price)));
-            binding.tvTitleList.setText(R.string.show_assets);
-        }else {
-            Toast.makeText(this, this.getResources().getString(R.string.please_fill), Toast.LENGTH_SHORT).show();
-        }
-
-    }
 }

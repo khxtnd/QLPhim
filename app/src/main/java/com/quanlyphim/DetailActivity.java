@@ -2,7 +2,6 @@ package com.quanlyphim;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
@@ -25,7 +24,7 @@ public class DetailActivity extends AppCompatActivity implements OnClickFilmList
     private String checkIntent = "";
     private FilmAdapter filmAdapter;
 
-    private List<Film> allAssetsUnknown;
+    private List<Film> allFilmUnknownCate;
 
     private List<Category> allCategories;
 
@@ -39,43 +38,32 @@ public class DetailActivity extends AppCompatActivity implements OnClickFilmList
 
         checkIntent = getIntent().getStringExtra(Constants.nameIntent);
         switch (checkIntent) {
-            case Constants.createRoom:
-                showViewCreateRoom();
+            case Constants.addCate:
+                showViewAddCate();
                 break;
-            case Constants.createAsset:
-                showViewCreateAsset();
+            case Constants.addFilm:
+                showViewAddFilm();
                 break;
-            case Constants.updateRoom:
-                showViewUpdateRoom();
+            case Constants.updateCate:
+                showViewUpdateCate();
                 break;
             default:
-                showViewUpdateAsset();
+                showViewUpdateFilm();
                 break;
         }
 
 
-        binding.btnCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+        binding.btnCancel.setOnClickListener(v -> finish());
     }
 
-    private void showViewCreateRoom() {
-        binding.tvBanner.setText(this.getResources().getText(R.string.create_room));
-
-        binding.btnCOrU.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                createRoom();
-            }
-        });
+    private void showViewAddCate() {
+        binding.tvBanner.setText(this.getResources().getText(R.string.add_category));
+        binding.btnAddOrUpdate.setOnClickListener(v -> addCate());
     }
 
-    private void createRoom() {
-        String name = binding.etNameRoom.getText().toString();
-        String desc = binding.etDescRoom.getText().toString();
+    private void addCate() {
+        String name = binding.etNameCate.getText().toString();
+        String desc = binding.etDescCate.getText().toString();
 
         if (!name.isEmpty() && !desc.isEmpty()) {
             dbHandler.insertCategory(new Category(name, desc));
@@ -86,42 +74,40 @@ public class DetailActivity extends AppCompatActivity implements OnClickFilmList
         }
     }
 
-    private void showViewCreateAsset() {
-        binding.tvBanner.setText(this.getResources().getText(R.string.create_asset));
-        binding.ctRoom.setVisibility(View.GONE);
-        binding.ctAsset.setVisibility(View.VISIBLE);
+    private void showViewAddFilm() {
+        binding.tvBanner.setText(this.getResources().getText(R.string.add_film));
+        binding.linearCate.setVisibility(View.GONE);
+        binding.linearFilm.setVisibility(View.VISIBLE);
 
         allCategories = dbHandler.getAllCategory();
-        allCategories.add(0,new Category(0, this.getResources().getString(R.string.no_in_room), ""));
-
         ArrayAdapter<Category> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, allCategories);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.spRoom.setAdapter(adapter);
         binding.spRoom.setSelection(0);
 
-        binding.btnCOrU.setOnClickListener(new View.OnClickListener() {
+        binding.btnAddOrUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                createAsset();
+                addFilm();
                 finish();
             }
         });
     }
 
-    private void createAsset() {
-        String name = binding.etNameAsset.getText().toString();
-        String cate = binding.etCateAsset.getText().toString();
-        String position = binding.etPosition.getText().toString();
-        String price = binding.etPrice.getText().toString();
-        int roomPosition = binding.spRoom.getSelectedItemPosition();
+    private void addFilm() {
+        String name = binding.etNameFilm.getText().toString();
+        String cate = binding.etDescFilm.getText().toString();
 
-        if (!name.isEmpty() && !cate.isEmpty() && !position.isEmpty() && !price.isEmpty()) {
-            if (roomPosition == 0) {
-                dbHandler.insertFilm(new Film(name, cate, position, Integer.valueOf(price), 0));
+        int position = binding.spRoom.getSelectedItemPosition();
+        int star=binding.rateBar.getNumStars();
+
+        if (!name.isEmpty() && !cate.isEmpty()) {
+            if (true) {
+                dbHandler.insertFilm(new Film(name, cate,"", "", star, 0));
             } else {
                 List<Category> allCategories = dbHandler.getAllCategory();
-                Integer roomId = allCategories.get(roomPosition - 1).getId();
-                dbHandler.insertFilm(new Film(name, cate, position, Integer.valueOf(price), roomId));
+                Integer roomId = allCategories.get(position - 1).getId();
+                dbHandler.insertFilm(new Film(name, cate,"","", star, roomId));
             }
             Toast.makeText(this, this.getResources().getString(R.string.create_success), Toast.LENGTH_SHORT).show();
         } else {
@@ -129,32 +115,32 @@ public class DetailActivity extends AppCompatActivity implements OnClickFilmList
         }
     }
 
-    private void showViewUpdateRoom() {
-        binding.tvBanner.setText(this.getResources().getText(R.string.update_room));
-        binding.btnCOrU.setText(this.getResources().getText(R.string.update));
+    private void showViewUpdateCate() {
+        binding.tvBanner.setText(this.getResources().getText(R.string.update_category));
+        binding.btnAddOrUpdate.setText(this.getResources().getText(R.string.update));
 
         Category category = (Category) getIntent().getSerializableExtra(Constants.dataIntent);
-        binding.etNameRoom.setText(category.getName());
-        binding.etDescRoom.setText(category.getDesc());
+        binding.etNameCate.setText(category.getName());
+        binding.etDescCate.setText(category.getDesc());
 
-        binding.ctAddAssetInRoom.setVisibility(View.VISIBLE);
+        binding.linearAddFilmInCate.setVisibility(View.VISIBLE);
         filmAdapter = new FilmAdapter(this);
         binding.rec.setAdapter(filmAdapter);
         filmAdapter.submit(dbHandler.getFilmByCategory(category.getId()));
 
-        allAssetsUnknown = dbHandler.getAllAssetsUnknown();
-        allAssetsUnknown.add(0, new Film(0, this.getResources().getString(R.string.unknonwn), "", "", 0, 0));
+        allFilmUnknownCate = dbHandler.getAllAssetsUnknown();
+        allFilmUnknownCate.add(0, new Film(0,"", this.getResources().getString(R.string.unknonwn), "", "", 0, 0));
 
-        ArrayAdapter<Film> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, allAssetsUnknown);
+        ArrayAdapter<Film> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, allFilmUnknownCate);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        binding.spAsset.setAdapter(adapter);
+        binding.spFilm.setAdapter(adapter);
 
-        binding.btnAddAsset.setOnClickListener(new View.OnClickListener() {
+        binding.btnAddFilm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int assetPosition = binding.spAsset.getSelectedItemPosition();
-                Film film = (Film) binding.spAsset.getItemAtPosition(assetPosition);
+                int assetPosition = binding.spFilm.getSelectedItemPosition();
+                Film film = (Film) binding.spFilm.getItemAtPosition(assetPosition);
                 if (film != null && film.getId() != 0) {
                     film.setCategoryId(category.getId());
                     dbHandler.updateFilm(film);
@@ -164,28 +150,26 @@ public class DetailActivity extends AppCompatActivity implements OnClickFilmList
 
             }
         });
-        binding.btnCOrU.setOnClickListener(new View.OnClickListener() {
+        binding.btnAddOrUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateRoom(category.getId());
+                updateCate(category.getId());
             }
         });
     }
 
     private void updateSpinnerAssetUnknown() {
-        allAssetsUnknown = dbHandler.getAllAssetsUnknown();
-        allAssetsUnknown.add(0, new Film(0, this.getResources().getString(R.string.unknonwn), "", "", 0, 0));
-
-        ArrayAdapter<Film> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, allAssetsUnknown);
+        allFilmUnknownCate = dbHandler.getAllAssetsUnknown();
+        ArrayAdapter<Film> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, allFilmUnknownCate);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        binding.spAsset.setAdapter(adapter);
+        binding.spFilm.setAdapter(adapter);
         Toast.makeText(this, this.getResources().getString(R.string.add_asset_success), Toast.LENGTH_SHORT).show();
 
     }
 
-    private void updateRoom(Integer id) {
-        String name = binding.etNameRoom.getText().toString();
-        String desc = binding.etDescRoom.getText().toString();
+    private void updateCate(Integer id) {
+        String name = binding.etNameCate.getText().toString();
+        String desc = binding.etDescCate.getText().toString();
 
         if (!name.isEmpty() && !desc.isEmpty()) {
             dbHandler.updateCategory(new Category(id, name, desc));
@@ -196,24 +180,22 @@ public class DetailActivity extends AppCompatActivity implements OnClickFilmList
         }
     }
 
-    private void showViewUpdateAsset() {
-        binding.tvBanner.setText(this.getResources().getText(R.string.update_asset));
+    private void showViewUpdateFilm() {
+        binding.tvBanner.setText(this.getResources().getText(R.string.update_film));
 
-        binding.ctRoom.setVisibility(View.GONE);
-        binding.ctAsset.setVisibility(View.VISIBLE);
-        binding.btnCOrU.setText(this.getResources().getText(R.string.update));
+        binding.linearCate.setVisibility(View.GONE);
+        binding.linearFilm.setVisibility(View.VISIBLE);
+        binding.btnAddOrUpdate.setText(this.getResources().getText(R.string.update));
 
         Film film = (Film) getIntent().getSerializableExtra(Constants.dataIntent);
         if (film != null) {
-            binding.etNameAsset.setText(film.getName());
-            binding.etCateAsset.setText(film.getCategory());
-            binding.etPosition.setText(film.getImage());
-            binding.etPrice.setText(film.getRate().toString());
+            binding.etNameFilm.setText(film.getName());
+            binding.rateBar.setRating(film.getRate());
         }
 
         allCategories = dbHandler.getAllCategory();
         Integer roomPosition = 0;
-        allCategories.add(0,new Category(0, this.getResources().getString(R.string.no_in_room), ""));
+        allCategories.add(0, new Category(0, this.getResources().getString(R.string.unknown), ""));
         for (int i = 0; i < allCategories.size(); i++) {
             if (film != null && film.getCategoryId().equals(allCategories.get(i).getId())) {
                 roomPosition = i;
@@ -229,24 +211,22 @@ public class DetailActivity extends AppCompatActivity implements OnClickFilmList
         } else {
             binding.spRoom.setSelection(roomPosition);
         }
-        binding.btnCOrU.setOnClickListener(new View.OnClickListener() {
+        binding.btnAddOrUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateAsset(film.getId());
+                updateFilm(film.getId());
             }
         });
     }
 
-    private void updateAsset(Integer id) {
-        String name = binding.etNameAsset.getText().toString();
-        String cate = binding.etCateAsset.getText().toString();
-        String position = binding.etPosition.getText().toString();
-        String price = binding.etPrice.getText().toString();
+    private void updateFilm(Integer id) {
+        String name = binding.etNameFilm.getText().toString();
+        String desc = binding.etDescFilm.getText().toString();
         int roomPosition = binding.spRoom.getSelectedItemPosition();
+        int rate = binding.rateBar.getNumStars();
         Category category = (Category) binding.spRoom.getItemAtPosition(roomPosition);
-        Log.e("khanhpq", category.getName());
-        if (!name.isEmpty() && !cate.isEmpty() && !position.isEmpty() && !price.isEmpty()) {
-            dbHandler.updateFilm(new Film(id, name, cate, position, Integer.valueOf(price), category.getId()));
+        if (!name.isEmpty()) {
+            dbHandler.updateFilm(new Film(id, name,"", category.getName(),"" ,rate , category.getId()));
             Toast.makeText(this, this.getResources().getString(R.string.update_success), Toast.LENGTH_SHORT).show();
             finish();
         } else {

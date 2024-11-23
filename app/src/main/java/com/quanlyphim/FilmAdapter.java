@@ -1,12 +1,13 @@
 package com.quanlyphim;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.quanlyphim.action.OnClickFilmListener;
-import com.quanlyphim.databinding.ItemAssetBinding;
+import com.quanlyphim.databinding.ItemFilmBinding;
 import com.quanlyphim.model.Film;
 
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public class FilmAdapter extends RecyclerView.Adapter<FilmViewHolder> {
     @Override
     public FilmViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        ItemAssetBinding binding = ItemAssetBinding.inflate(layoutInflater, parent, false);
+        ItemFilmBinding binding = ItemFilmBinding.inflate(layoutInflater, parent, false);
         return new FilmViewHolder(binding);
     }
 
@@ -38,13 +39,12 @@ public class FilmAdapter extends RecyclerView.Adapter<FilmViewHolder> {
     public void onBindViewHolder(@NonNull FilmViewHolder holder, int position) {
         Film item = list.get(position);
         holder.binding.tvName.setText(item.getName());
-        holder.binding.tvCate.setText(item.getCategory());
-        holder.binding.tvPosition.setText(item.getImage());
-        holder.binding.tvPrice.setText(item.getRate()+" K");
+        holder.binding.tvCategory.setText(item.getCategory());
 
-        holder.binding.itemAsset.setOnClickListener(view -> onClickFilmListener.onClickAsset(item));
+        holder.binding.itemFilm.setOnClickListener(view -> onClickFilmListener.onClickAsset(item));
 
-        holder.binding.ivDelete.setOnClickListener(view -> onClickFilmListener.deleteAsset(item));
+        holder.binding.recStar.setAdapter(new StarAdapter(item.getRate()));
+
     }
 
     @Override
@@ -54,9 +54,9 @@ public class FilmAdapter extends RecyclerView.Adapter<FilmViewHolder> {
 }
 
 class FilmViewHolder extends RecyclerView.ViewHolder {
-    final ItemAssetBinding binding;
+    final ItemFilmBinding binding;
 
-    public FilmViewHolder(ItemAssetBinding binding) {
+    public FilmViewHolder(ItemFilmBinding binding) {
         super(binding.getRoot());
         this.binding = binding;
     }

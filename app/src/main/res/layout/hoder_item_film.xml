@@ -24,7 +24,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_name_film">
+        android:background="@drawable/bg_film_info">
 
         <TextView
             android:text="Star War 3"

@@ -1,26 +1,20 @@
 <resources>
     <string name="app_name">QuanLyPhim</string>
-    <string name="banner">Quản lý tài sản</string>
-    <string name="create_room">Thêm phòng</string>
-    <string name="update_room">Sửa phòng</string>
-    <string name="delete_room">Xóa phòng</string>
-    <string name="show_rooms">Danh sách phòng</string>
+    <string name="banner">Quản lý Phim</string>
+    <string name="add_category">Thêm thể loại</string>
+    <string name="update_category">Sửa thể loại</string>
+    <string name="delete_category">Xóa Thể loại</string>
 
-    <string name="name_room">Tên phòng</string>
-    <string name="desc_room">Mô tả phòng</string>
+    <string name="name_category">Tên thể loại</string>
+    <string name="desc">Mô tả</string>
 
-    <string name="create_asset">Thêm tài sản</string>
-    <string name="update_asset">Sửa tài sản</string>
-    <string name="delete_asset">Xóa tài sản</string>
-    <string name="show_assets">Danh sách tài sản</string>
+    <string name="add_film">Thêm phim</string>
+    <string name="update_film">Sửa phim</string>
+    <string name="delete_film">Xóa phim</string>
 
-    <string name="name_asset">Tên tài sản</string>
-    <string name="cate_asset">Loại tài sản</string>
-    <string name="position_asset">Vị trí tài sản</string>
-    <string name="price_assets">Giá trị tài sản</string>
+    <string name="name_film">Tên film</string>
 
-    <string name="enter_price">Nhập giá tài sản</string>
-    <string name="search_asset_by_price">Tìm kiếm</string>
+    <string name="evaluate">Đánh giá</string>
 
     <string name="cancel">Hủy</string>
     <string name="update">Cập nhật</string>
@@ -36,10 +30,14 @@
     <string name="confirm_delete_asset_in_room">Bạn có chắc chắn xóa tài sản khỏi phòng?</string>
     <string name="delete_asset_in_room">Xóa tài sản khỏi phòng</string>
 
-    <string name="no_in_room">Chưa xác định</string>
+    <string name="unknown">Chưa xác định</string>
     <string name="add_asset_in_room">Gán tài sản</string>
-    <string name="category">Phòng</string>
+    <string name="category">Thể loại</string>
+    <string name="film">Phim</string>
     <string name="unknonwn">Không xác định</string>
+    <string name="all">Tất cả</string>
+    <string name="colon">:</string>
+    <string name="select_photo">Chọn ảnh</string>
 
     <string name="add_asset_success">Gán thành công!!</string>
 </resources>

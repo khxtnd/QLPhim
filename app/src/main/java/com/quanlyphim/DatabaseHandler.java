@@ -46,6 +46,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 KEY_ID + " INTEGER PRIMARY KEY," +
                 KEY_NAME + " TEXT," +
                 KEY_CATEGORY + " TEXT," +
+                KEY_DESC + " TEXT," +
                 KEY_IMAGE + " TEXT," +
                 KEY_RATE + " INTEGER," +
                 KEY_CATEGORY_ID + " INTEGER," +
@@ -83,9 +84,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     // Hàm thêm dữ liệu mặc định vào bảng CATEGORY
     private void insertDefaultCategories(SQLiteDatabase db) {
         db.execSQL("INSERT INTO " + TABLE_CATEGORY + " (" + KEY_ID + ", " + KEY_NAME + ", " + KEY_DESC + ") VALUES " +
-                "(1, 'Action', 'Movies with exciting action sequences'), " +
-                "(2, 'Comedy', 'Funny and entertaining movies'), " +
-                "(3, 'Drama', 'Emotionally powerful movies')");
+                "(0, 'Không xác định', ''), " +
+                "(1, 'Tất cả', ''), " +
+                "(2, 'Action', 'Movies with exciting action sequences'), " +
+                "(3, 'Comedy', 'Funny and entertaining movies'), " +
+                "(4, 'Drama', 'Emotionally powerful movies')");
     }
 
     // Hàm thêm dữ liệu mặc định vào bảng FILM
@@ -144,7 +147,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         cursor.moveToFirst();
 
         while (cursor.isAfterLast() == false) {
-            Film film = new Film(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getInt(4), cursor.getInt(5));
+            Film film = new Film(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3),cursor.getString(4), cursor.getInt(5), cursor.getInt(6));
             filmList.add(film);
             cursor.moveToNext();
         }
@@ -160,7 +163,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         cursor.moveToFirst();
 
         while (cursor.isAfterLast() == false) {
-            Film film = new Film(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getInt(4), cursor.getInt(5));
+            Film film = new Film(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3),cursor.getString(4), cursor.getInt(5), cursor.getInt(6));
             filmList.add(film);
             cursor.moveToNext();
         }
@@ -209,7 +212,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         cursor.moveToFirst();
 
         while (cursor.isAfterLast() == false) {
-            Film film = new Film(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getInt(4), cursor.getInt(5));
+            Film film = new Film(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3),cursor.getString(4), cursor.getInt(5), cursor.getInt(6));
             filmList.add(film);
             cursor.moveToNext();
         }
@@ -224,7 +227,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         cursor.moveToFirst();
 
         while (cursor.isAfterLast() == false) {
-            Film film = new Film(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getInt(4), cursor.getInt(5));
+            Film film = new Film(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3),cursor.getString(4), cursor.getInt(5), cursor.getInt(6));
             filmList.add(film);
             cursor.moveToNext();
         }
