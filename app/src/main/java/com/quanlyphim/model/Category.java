@@ -9,6 +9,9 @@ public class Category implements Serializable {
     private String name;
     private String desc;
 
+    public Category() {
+    }
+
     public Category(String name, String desc) {
         this.name = name;
         this.desc = desc;

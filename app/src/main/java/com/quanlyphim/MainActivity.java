@@ -1,24 +1,23 @@
 package com.quanlyphim;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.quanlyphim.action.OnClickFilmListener;
 import com.quanlyphim.action.OnClickCategoryListener;
+import com.quanlyphim.action.OnClickFilmListener;
 import com.quanlyphim.databinding.ActivityMainBinding;
-import com.quanlyphim.model.Film;
 import com.quanlyphim.model.Category;
+import com.quanlyphim.model.Film;
 
 public class MainActivity extends AppCompatActivity implements OnClickCategoryListener, OnClickFilmListener {
     private ActivityMainBinding binding;
     private CategoryAdapter categoryAdapter;
     private FilmAdapter filmAdapter;
     private DatabaseHandler dbHandler;
+    private Category cateSelected = new Category();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,18 +26,16 @@ public class MainActivity extends AppCompatActivity implements OnClickCategoryLi
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         dbHandler = new DatabaseHandler(this);
-        binding.btnCreateRoom.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                moveDetailActivity(Constants.addCate, null, null);
-            }
+        binding.btnAddCate.setOnClickListener(v -> moveDetailActivity(Constants.addCate, null, null));
+
+        binding.btnAddFilm.setOnClickListener(v -> moveDetailActivity(Constants.addFilm, null, null));
+
+        binding.btnShowCate.setOnClickListener(v -> {
+            filmAdapter.submit(dbHandler.getAllFilmStarHot(4));
         });
 
-        binding.btnCreateAsset.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                moveDetailActivity(Constants.addFilm, null, null);
-            }
+        binding.btnUpdateCate.setOnClickListener(v -> {
+            moveDetailActivity(Constants.updateCate, cateSelected, null);
         });
 
     }
@@ -51,63 +48,21 @@ public class MainActivity extends AppCompatActivity implements OnClickCategoryLi
     }
 
     @Override
-    public void onClickRoom(Category category) {
-        moveDetailActivity(Constants.updateCate, category, null);
+    public void onClickCategory(Category category) {
+        if (category.getId() == 1) {
+            filmAdapter.submit(dbHandler.getAllFilms());
+            binding.btnUpdateCate.setVisibility(View.GONE);
+        } else {
+            filmAdapter.submit(dbHandler.getFilmByCategory(category.getId()));
+            binding.btnUpdateCate.setVisibility(View.VISIBLE);
+        }
+
+        cateSelected = category;
     }
 
     @Override
-    public void onClickAsset(Film film) {
-        moveDetailActivity(Constants.updateAsset, null, film);
-    }
-
-    @Override
-    public void deleteAsset(Film film) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(this.getResources().getString(R.string.delete_film));
-        builder.setMessage(this.getResources().getString(R.string.confirm_delete));
-
-        builder.setPositiveButton(this.getResources().getString(R.string.delete), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dbHandler.deleteFilm(film.getId());
-                filmAdapter.submit(dbHandler.getAllFilms());
-            }
-        });
-
-        builder.setNegativeButton(this.getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
-    }
-
-    @Override
-    public void deleteRoom(Integer id) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(this.getResources().getString(R.string.delete_category));
-        builder.setMessage(this.getResources().getString(R.string.confirm_delete));
-
-        builder.setPositiveButton(this.getResources().getString(R.string.delete), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dbHandler.deleteCategory(id);
-                categoryAdapter.submit(dbHandler.getAllCategory());
-            }
-        });
-
-        builder.setNegativeButton(this.getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
+    public void onClickFilm(Film film) {
+        moveDetailActivity(Constants.updateFilm, null, film);
     }
 
     private void showAllCategory() {
@@ -117,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements OnClickCategoryLi
     }
 
     private void showAllFilm() {
-        filmAdapter = new FilmAdapter(this);
+        filmAdapter = new FilmAdapter(MainActivity.this, this);
         binding.recFilm.setAdapter(filmAdapter);
         filmAdapter.submit(dbHandler.getAllFilms());
     }
@@ -127,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements OnClickCategoryLi
         intent.putExtra(Constants.nameIntent, valueIntent);
         if (valueIntent.equals(Constants.updateCate)) {
             intent.putExtra(Constants.dataIntent, category);
-        } else if (valueIntent.equals(Constants.updateAsset)) {
+        } else if (valueIntent.equals(Constants.updateFilm)) {
             intent.putExtra(Constants.dataIntent, film);
         }
         startActivity(intent);

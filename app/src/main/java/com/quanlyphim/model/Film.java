@@ -10,16 +10,18 @@ public class Film implements Serializable {
     private String category = "";
     private String desc = "";
     private String image = "";
-    private Integer rate = 0;
+    private Integer evaluate = 0;
     private Integer categoryId = 0;
 
+    public Film() {
+    }
 
-    public Film(String name, String category, String desc, String image, Integer rate, Integer categoryId) {
+    public Film(String name, String category, String desc, String image, Integer evaluate, Integer categoryId) {
         this.name = name;
         this.category = category;
         this.desc = desc;
         this.image = image;
-        this.rate = rate;
+        this.evaluate = evaluate;
         this.categoryId = categoryId;
     }
 
@@ -30,13 +32,13 @@ public class Film implements Serializable {
         return name;
     }
 
-    public Film(Integer id, String name, String category, String desc, String image, Integer rate, Integer categoryId) {
+    public Film(Integer id, String name, String category, String desc, String image, Integer evaluate, Integer categoryId) {
         this.id = id;
         this.name = name;
         this.desc = desc;
         this.category = category;
         this.image = image;
-        this.rate = rate;
+        this.evaluate = evaluate;
         this.categoryId = categoryId;
     }
 
@@ -76,12 +78,12 @@ public class Film implements Serializable {
         this.image = image;
     }
 
-    public Integer getRate() {
-        return rate;
+    public Integer getEvaluate() {
+        return evaluate;
     }
 
-    public void setRate(Integer rate) {
-        this.rate = rate;
+    public void setEvaluate(Integer evaluate) {
+        this.evaluate = evaluate;
     }
 
     public Integer getCategoryId() {

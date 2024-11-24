@@ -1,15 +1,20 @@
 package com.quanlyphim;
 
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-
+import com.bumptech.glide.Glide;
 import com.quanlyphim.action.OnClickFilmListener;
 import com.quanlyphim.databinding.ActivityDetailBinding;
 import com.quanlyphim.model.Category;
@@ -28,11 +33,18 @@ public class DetailActivity extends AppCompatActivity implements OnClickFilmList
 
     private List<Category> allCategories;
 
+    private String linkImage = "";
+
+    private static final int PICK_IMAGE_REQUEST = 1;
+
+    private Film filmSelected=new Film();
+    private Category categoryUpdate=new Category();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityDetailBinding.inflate(getLayoutInflater());
-        ;
+
         setContentView(binding.getRoot());
         dbHandler = new DatabaseHandler(this);
 
@@ -54,7 +66,26 @@ public class DetailActivity extends AppCompatActivity implements OnClickFilmList
 
 
         binding.btnCancel.setOnClickListener(v -> finish());
+        binding.btnSelectFile.setOnClickListener(v -> {
+            openImagePicker();
+        });
+
+        binding.btnDeleteFilmInCate.setOnClickListener(v -> {
+            Film film=filmSelected;
+            film.setCategoryId(0);
+            film.setCategory("Không xác định");
+            dbHandler.updateFilm(film);
+
+            allFilmUnknownCate = dbHandler.getAllFilmUnknownCate();
+            binding.linearAddFilmInCate.setVisibility(View.VISIBLE);
+            ArrayAdapter<Film> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, allFilmUnknownCate);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            binding.spFilm.setAdapter(adapter);
+
+            filmAdapter.submit(dbHandler.getFilmByCategory(categoryUpdate.getId()));
+        });
     }
+
 
     private void showViewAddCate() {
         binding.tvBanner.setText(this.getResources().getText(R.string.add_category));
@@ -82,8 +113,8 @@ public class DetailActivity extends AppCompatActivity implements OnClickFilmList
         allCategories = dbHandler.getAllCategory();
         ArrayAdapter<Category> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, allCategories);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        binding.spRoom.setAdapter(adapter);
-        binding.spRoom.setSelection(0);
+        binding.spCategory.setAdapter(adapter);
+        binding.spCategory.setSelection(0);
 
         binding.btnAddOrUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,19 +127,14 @@ public class DetailActivity extends AppCompatActivity implements OnClickFilmList
 
     private void addFilm() {
         String name = binding.etNameFilm.getText().toString();
-        String cate = binding.etDescFilm.getText().toString();
+        String desc = binding.etDescFilm.getText().toString();
 
-        int position = binding.spRoom.getSelectedItemPosition();
-        int star=binding.rateBar.getNumStars();
+        int star = (int) binding.ratingBar.getRating();
 
-        if (!name.isEmpty() && !cate.isEmpty()) {
-            if (true) {
-                dbHandler.insertFilm(new Film(name, cate,"", "", star, 0));
-            } else {
-                List<Category> allCategories = dbHandler.getAllCategory();
-                Integer roomId = allCategories.get(position - 1).getId();
-                dbHandler.insertFilm(new Film(name, cate,"","", star, roomId));
-            }
+        int catePosition = binding.spCategory.getSelectedItemPosition();
+        Category cate = (Category) binding.spCategory.getItemAtPosition(catePosition);
+        if (!name.isEmpty() && !desc.isEmpty()) {
+            dbHandler.insertFilm(new Film(name, cate.getName(), desc, linkImage, star, cate.getId()));
             Toast.makeText(this, this.getResources().getString(R.string.create_success), Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, this.getResources().getString(R.string.please_fill), Toast.LENGTH_SHORT).show();
@@ -116,54 +142,88 @@ public class DetailActivity extends AppCompatActivity implements OnClickFilmList
     }
 
     private void showViewUpdateCate() {
-        binding.tvBanner.setText(this.getResources().getText(R.string.update_category));
+        binding.tvBanner.setText(this.getResources().getText(R.string.update_or_delete_category));
         binding.btnAddOrUpdate.setText(this.getResources().getText(R.string.update));
 
         Category category = (Category) getIntent().getSerializableExtra(Constants.dataIntent);
+        categoryUpdate=category;
         binding.etNameCate.setText(category.getName());
         binding.etDescCate.setText(category.getDesc());
+        binding.btnDelete.setVisibility(View.VISIBLE);
 
-        binding.linearAddFilmInCate.setVisibility(View.VISIBLE);
-        filmAdapter = new FilmAdapter(this);
-        binding.rec.setAdapter(filmAdapter);
+        filmAdapter = new FilmAdapter(DetailActivity.this, this);
+        binding.recFilm.setAdapter(filmAdapter);
         filmAdapter.submit(dbHandler.getFilmByCategory(category.getId()));
 
-        allFilmUnknownCate = dbHandler.getAllAssetsUnknown();
-        allFilmUnknownCate.add(0, new Film(0,"", this.getResources().getString(R.string.unknonwn), "", "", 0, 0));
+        allFilmUnknownCate = dbHandler.getAllFilmUnknownCate();
+
+        if (!allFilmUnknownCate.isEmpty()) {
+            binding.linearAddFilmInCate.setVisibility(View.VISIBLE);
+            ArrayAdapter<Film> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, allFilmUnknownCate);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            binding.spFilm.setAdapter(adapter);
+        }
 
         ArrayAdapter<Film> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, allFilmUnknownCate);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         binding.spFilm.setAdapter(adapter);
 
-        binding.btnAddFilm.setOnClickListener(new View.OnClickListener() {
+        binding.btnAddOrUpdateFilm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int assetPosition = binding.spFilm.getSelectedItemPosition();
-                Film film = (Film) binding.spFilm.getItemAtPosition(assetPosition);
+                int filmPosition = binding.spFilm.getSelectedItemPosition();
+                Film film = (Film) binding.spFilm.getItemAtPosition(filmPosition);
                 if (film != null && film.getId() != 0) {
                     film.setCategoryId(category.getId());
+                    film.setCategory(category.getName());
                     dbHandler.updateFilm(film);
                     filmAdapter.submit(dbHandler.getFilmByCategory(category.getId()));
-                    updateSpinnerAssetUnknown();
+                    updateSpinnerFilmNoCate();
                 }
 
             }
         });
-        binding.btnAddOrUpdate.setOnClickListener(new View.OnClickListener() {
+        binding.btnAddOrUpdate.setOnClickListener(v -> updateCate(category.getId()));
+
+        binding.btnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateCate(category.getId());
+                AlertDialog.Builder builder = new AlertDialog.Builder(DetailActivity.this);
+                builder.setTitle(DetailActivity.this.getResources().getString(R.string.delete_category));
+                builder.setMessage(DetailActivity.this.getResources().getString(R.string.confirm_delete));
+
+                builder.setPositiveButton(DetailActivity.this.getResources().getString(R.string.delete), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dbHandler.deleteCategory(category.getId());
+                        finish();
+                    }
+                });
+
+                builder.setNegativeButton(DetailActivity.this.getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+                AlertDialog dialog = builder.create();
+                dialog.show();
             }
         });
     }
 
-    private void updateSpinnerAssetUnknown() {
-        allFilmUnknownCate = dbHandler.getAllAssetsUnknown();
-        ArrayAdapter<Film> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, allFilmUnknownCate);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        binding.spFilm.setAdapter(adapter);
-        Toast.makeText(this, this.getResources().getString(R.string.add_asset_success), Toast.LENGTH_SHORT).show();
+    private void updateSpinnerFilmNoCate() {
+        allFilmUnknownCate = dbHandler.getAllFilmUnknownCate();
+        if (!allFilmUnknownCate.isEmpty()) {
+            binding.linearAddFilmInCate.setVisibility(View.VISIBLE);
+            ArrayAdapter<Film> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, allFilmUnknownCate);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            binding.spFilm.setAdapter(adapter);
+        }
+
+        Toast.makeText(this, this.getResources().getString(R.string.add_film_success), Toast.LENGTH_SHORT).show();
 
     }
 
@@ -173,6 +233,11 @@ public class DetailActivity extends AppCompatActivity implements OnClickFilmList
 
         if (!name.isEmpty() && !desc.isEmpty()) {
             dbHandler.updateCategory(new Category(id, name, desc));
+            List<Film> listFilmInCate = dbHandler.getFilmByCategory(id);
+            for (Film film : listFilmInCate) {
+                film.setCategory(name);
+                dbHandler.updateFilm(film);
+            }
             Toast.makeText(this, this.getResources().getString(R.string.update_success), Toast.LENGTH_SHORT).show();
             finish();
         } else {
@@ -181,52 +246,86 @@ public class DetailActivity extends AppCompatActivity implements OnClickFilmList
     }
 
     private void showViewUpdateFilm() {
-        binding.tvBanner.setText(this.getResources().getText(R.string.update_film));
+        allCategories = dbHandler.getAllCategory();
+        allCategories.remove(0);
+        allCategories.remove(0);
+
+        binding.tvBanner.setText(this.getResources().getText(R.string.update_or_delete_film));
 
         binding.linearCate.setVisibility(View.GONE);
         binding.linearFilm.setVisibility(View.VISIBLE);
+        binding.btnDelete.setVisibility(View.VISIBLE);
         binding.btnAddOrUpdate.setText(this.getResources().getText(R.string.update));
 
         Film film = (Film) getIntent().getSerializableExtra(Constants.dataIntent);
         if (film != null) {
             binding.etNameFilm.setText(film.getName());
-            binding.rateBar.setRating(film.getRate());
+            binding.ratingBar.setRating(film.getEvaluate());
         }
 
-        allCategories = dbHandler.getAllCategory();
-        Integer roomPosition = 0;
-        allCategories.add(0, new Category(0, this.getResources().getString(R.string.unknown), ""));
+
+
+        int catePosition = 0;
         for (int i = 0; i < allCategories.size(); i++) {
             if (film != null && film.getCategoryId().equals(allCategories.get(i).getId())) {
-                roomPosition = i;
+                catePosition= i;
             }
         }
 
         ArrayAdapter<Category> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, allCategories);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        binding.spRoom.setAdapter(adapter);
+        binding.spCategory.setAdapter(adapter);
+        Log.e("khanhpq", catePosition+"");
+        binding.spCategory.setSelection(catePosition);
+
         if (film.getCategoryId() == 0) {
-            binding.spRoom.setSelection(0);
+            binding.spCategory.setSelection(0);
         } else {
-            binding.spRoom.setSelection(roomPosition);
+            binding.spCategory.setSelection(catePosition);
         }
-        binding.btnAddOrUpdate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                updateFilm(film.getId());
-            }
+
+        Glide.with(this)
+                .load(film.getImage())
+                .placeholder(R.drawable.img_star_war)
+                .error(R.drawable.img_star_war)
+                .into(binding.ivFilm);
+        binding.btnAddOrUpdate.setOnClickListener(v -> updateFilm(film.getId()));
+
+
+        binding.btnDelete.setOnClickListener(v -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(DetailActivity.this);
+            builder.setTitle(DetailActivity.this.getResources().getString(R.string.delete_film));
+            builder.setMessage(DetailActivity.this.getResources().getString(R.string.confirm_delete));
+
+            builder.setPositiveButton(DetailActivity.this.getResources().getString(R.string.delete), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dbHandler.deleteFilm(film.getId());
+                    finish();
+                }
+            });
+
+            builder.setNegativeButton(DetailActivity.this.getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
         });
     }
 
     private void updateFilm(Integer id) {
         String name = binding.etNameFilm.getText().toString();
         String desc = binding.etDescFilm.getText().toString();
-        int roomPosition = binding.spRoom.getSelectedItemPosition();
-        int rate = binding.rateBar.getNumStars();
-        Category category = (Category) binding.spRoom.getItemAtPosition(roomPosition);
+        int catePosition = binding.spCategory.getSelectedItemPosition();
+        int evaluate = (int) binding.ratingBar.getRating();
+        Category category = (Category) binding.spCategory.getItemAtPosition(catePosition);
         if (!name.isEmpty()) {
-            dbHandler.updateFilm(new Film(id, name,"", category.getName(),"" ,rate , category.getId()));
+            dbHandler.updateFilm(new Film(id, name, category.getName(), desc, linkImage, evaluate, category.getId()));
             Toast.makeText(this, this.getResources().getString(R.string.update_success), Toast.LENGTH_SHORT).show();
             finish();
         } else {
@@ -236,36 +335,34 @@ public class DetailActivity extends AppCompatActivity implements OnClickFilmList
 
 
     @Override
-    public void onClickAsset(Film film) {
+    public void onClickFilm(Film film) {
+        filmSelected=film;
+        binding.btnDeleteFilmInCate.setVisibility(View.VISIBLE);
+    }
+
+
+    private void openImagePicker() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        intent.setType("image/*");
+        startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
 
     @Override
-    public void deleteAsset(Film film) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(this.getResources().getString(R.string.delete_asset_in_room));
-        builder.setMessage(this.getResources().getString(R.string.confirm_delete_asset_in_room));
-
-        builder.setPositiveButton(this.getResources().getString(R.string.delete), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Integer roomId = film.getCategoryId();
-                film.setCategoryId(0);
-                dbHandler.updateFilm(film);
-                filmAdapter.submit(dbHandler.getFilmByCategory(roomId));
-
-                updateSpinnerAssetUnknown();
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
+            Uri imageUri = data.getData();
+            if (imageUri != null) {
+                Glide.with(this)
+                        .load(imageUri)
+                        .placeholder(R.drawable.img_star_war)
+                        .error(R.drawable.img_star_war)
+                        .into(binding.ivFilm);
+                linkImage = imageUri.toString();
+            } else {
+                Toast.makeText(this, "Không chọn được hình ảnh", Toast.LENGTH_SHORT).show();
             }
-        });
-
-        builder.setNegativeButton(this.getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
-
+        }
     }
+
 }

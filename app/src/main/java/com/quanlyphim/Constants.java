@@ -11,6 +11,6 @@ public final class Constants {
 
     public static final String addFilm = "3";
 
-    public static final String updateAsset = "4";
+    public static final String updateFilm = "4";
 
 }

@@ -1,9 +1,11 @@
 package com.quanlyphim;
 
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.quanlyphim.action.OnClickCategoryListener;
@@ -17,7 +19,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryViewHolder> {
 
     private final ArrayList<Category> list = new ArrayList<>();
     private OnClickCategoryListener onClickCategoryListener;
-
+    private int selectedPosition = 0;
     public CategoryAdapter(OnClickCategoryListener onClickCategoryListener) {
         this.onClickCategoryListener = onClickCategoryListener;
     }
@@ -40,14 +42,23 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull CategoryViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull CategoryViewHolder holder, @SuppressLint("RecyclerView") int position) {
         Category item = list.get(position);
         holder.binding.tvName.setText(item.getName());
+
+        if (selectedPosition == position) {
+            holder.binding.itemCategory.setBackground(ContextCompat.getDrawable(holder.itemView.getContext(), R.drawable.bg_cate_selected));
+        } else {
+            holder.binding.itemCategory.setBackground(ContextCompat.getDrawable(holder.itemView.getContext(), R.drawable.bg_item_film));
+        }
         holder.binding.itemCategory.setOnClickListener(
                 view -> {
-                    if (position > 0) {
-                        onClickCategoryListener.onClickRoom(item);
-                    }
+                    int previousPosition = selectedPosition;
+                    selectedPosition = position;
+
+                    notifyItemChanged(previousPosition);
+                    notifyItemChanged(selectedPosition);
+                    onClickCategoryListener.onClickCategory(item);
                 }
         );
 

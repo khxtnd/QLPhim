@@ -24,7 +24,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String KEY_DESC = "description";
     private static final String KEY_CATEGORY = "category";
     private static final String KEY_IMAGE = "image";
-    private static final String KEY_RATE = "rate";
+    private static final String KEY_EVALUATE = "evaluate";
     private static final String KEY_CATEGORY_ID = "categoryId";
 
 
@@ -34,33 +34,31 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        Log.e("khanhpq", "create");
-        String createRoomTableQuery = "CREATE TABLE " + TABLE_CATEGORY + "(" +
+        String createCategoryTableQuery = "CREATE TABLE " + TABLE_CATEGORY + "(" +
                 KEY_ID + " INTEGER PRIMARY KEY," +
                 KEY_NAME + " TEXT," +
                 KEY_DESC + " TEXT" +
                 ")";
-        db.execSQL(createRoomTableQuery);
+        db.execSQL(createCategoryTableQuery);
 
-        String createAssetTableQuery = "CREATE TABLE " + TABLE_FILM + "(" +
+        String createFilmTableQuery = "CREATE TABLE " + TABLE_FILM + "(" +
                 KEY_ID + " INTEGER PRIMARY KEY," +
                 KEY_NAME + " TEXT," +
                 KEY_CATEGORY + " TEXT," +
                 KEY_DESC + " TEXT," +
                 KEY_IMAGE + " TEXT," +
-                KEY_RATE + " INTEGER," +
+                KEY_EVALUATE + " INTEGER," +
                 KEY_CATEGORY_ID + " INTEGER," +
                 "FOREIGN KEY(" + KEY_CATEGORY_ID + ") REFERENCES " +
                 TABLE_CATEGORY + "(" + KEY_ID + ")" +
                 ")";
-        db.execSQL(createAssetTableQuery);
+        db.execSQL(createFilmTableQuery);
 
         if (isTableEmpty(db, TABLE_CATEGORY)) {
             insertDefaultCategories(db);
         }
 
         if (isTableEmpty(db, TABLE_FILM)) {
-            Log.e("khanhpq", "isTableEmpty");
             insertDefaultFilms(db);
         }
 
@@ -81,7 +79,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return count == 0;
     }
 
-    // Hàm thêm dữ liệu mặc định vào bảng CATEGORY
     private void insertDefaultCategories(SQLiteDatabase db) {
         db.execSQL("INSERT INTO " + TABLE_CATEGORY + " (" + KEY_ID + ", " + KEY_NAME + ", " + KEY_DESC + ") VALUES " +
                 "(0, 'Không xác định', ''), " +
@@ -91,14 +88,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 "(4, 'Drama', 'Emotionally powerful movies')");
     }
 
-    // Hàm thêm dữ liệu mặc định vào bảng FILM
     private void insertDefaultFilms(SQLiteDatabase db) {
-        Log.e("khanhpq", "insertDefaultFilms");
         db.execSQL("INSERT INTO " + TABLE_FILM + " (" + KEY_ID + ", " + KEY_NAME + ", " + KEY_CATEGORY + ", " +
-                KEY_IMAGE + ", " + KEY_RATE + ", " + KEY_CATEGORY_ID + ") VALUES " +
-                "(1, 'Die Hard', 'Action', 'die_hard.jpg', 5, 1), " +
-                "(2, 'The Mask', 'Comedy', 'the_mask.jpg', 4, 2), " +
-                "(3, 'The Pursuit of Happyness', 'Drama', 'pursuit_of_happyness.jpg', 5, 3)");
+                KEY_IMAGE + ", " + KEY_EVALUATE + ", " + KEY_CATEGORY_ID + ") VALUES " +
+                "(1, 'Die Hard', 'Action', 'die_hard.jpg', 5, 2), " +
+                "(2, 'The Mask', 'Comedy', 'the_mask.jpg', 4, 3), " +
+                "(3, 'The Pursuit of Happyness', 'Drama', 'pursuit_of_happyness.jpg', 3, 4)");
     }
 
     public void insertCategory(Category category) {
@@ -116,7 +111,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_NAME, film.getName());
         values.put(KEY_CATEGORY, film.getCategory());
         values.put(KEY_IMAGE, film.getImage());
-        values.put(KEY_RATE, film.getRate());
+        values.put(KEY_EVALUATE, film.getEvaluate());
         values.put(KEY_CATEGORY_ID, film.getCategoryId());
         db.insert(TABLE_FILM, null, values);
         db.close();
@@ -185,28 +180,28 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_NAME, film.getName());
         values.put(KEY_CATEGORY, film.getCategory());
         values.put(KEY_IMAGE, film.getImage());
-        values.put(KEY_RATE, film.getRate());
+        values.put(KEY_EVALUATE, film.getEvaluate());
         values.put(KEY_CATEGORY_ID, film.getCategoryId());
         db.update(TABLE_FILM, values, KEY_ID + " = ?", new String[]{String.valueOf(film.getId())});
         db.close();
     }
 
 
-    public void deleteCategory(int roomtId) {
+    public void deleteCategory(int cateId) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_CATEGORY, KEY_ID + " = ?", new String[]{String.valueOf(roomtId)});
+        db.delete(TABLE_CATEGORY, KEY_ID + " = ?", new String[]{String.valueOf(cateId)});
         db.close();
     }
 
-    public void deleteFilm(int assetId) {
+    public void deleteFilm(int filmId) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_FILM, KEY_ID + " = ?", new String[]{String.valueOf(assetId)});
+        db.delete(TABLE_FILM, KEY_ID + " = ?", new String[]{String.valueOf(filmId)});
         db.close();
     }
 
-    public List<Film> getAllAssetsMorePrice(Integer price) {
+    public List<Film> getAllFilmStarHot(Integer star) {
         List<Film> filmList = new ArrayList<>();
-        String query = "SELECT * FROM " + TABLE_FILM + " WHERE " + KEY_RATE + " > " + price + ";";
+        String query = "SELECT * FROM " + TABLE_FILM + " WHERE " + KEY_EVALUATE + " >= " + star + ";";
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
         cursor.moveToFirst();
@@ -219,7 +214,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return filmList;
     }
 
-    public List<Film> getAllAssetsUnknown() {
+    public List<Film> getAllFilmUnknownCate() {
         List<Film> filmList = new ArrayList<>();
         String query = "SELECT * FROM " + TABLE_FILM + " WHERE " + KEY_CATEGORY_ID + " = 0";
         SQLiteDatabase db = this.getReadableDatabase();

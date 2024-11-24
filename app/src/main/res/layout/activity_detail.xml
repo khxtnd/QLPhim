@@ -24,14 +24,15 @@
         android:id="@+id/linearCate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="gone">
+        android:orientation="vertical">
 
         <EditText
             android:id="@+id/etNameCate"
             android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="40dp"
+            android:textColor="@color/white"
+            android:textColorHint="@color/lime8"
             android:hint="@string/name_category" />
 
         <EditText
@@ -41,6 +42,8 @@
             android:layout_marginStart="40dp"
             android:layout_marginTop="10dp"
             android:hint="@string/desc"
+            android:textColor="@color/white"
+            android:textColorHint="@color/lime8"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/etNameCate" />
 
@@ -62,11 +65,11 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <Button
-                android:id="@+id/btnAddFilm"
+                android:id="@+id/btn_add_or_update_film"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
-                android:text="@string/add_asset_in_room"
+                android:text="@string/add_film_in_cate"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@id/spFilm"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -76,6 +79,7 @@
 
     <LinearLayout
         android:id="@+id/linear_film"
+        android:visibility="gone"
         android:layout_gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -86,7 +90,8 @@
             android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:hint="@string/name_film"
-            android:textColorHint="@color/white" />
+            android:textColor="@color/white"
+            android:textColorHint="@color/lime8" />
 
         <EditText
             android:id="@+id/et_desc_film"
@@ -94,18 +99,21 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:hint="@string/desc"
-            android:textColorHint="@color/white"
+            android:textColor="@color/white"
+            android:textColorHint="@color/lime8"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/et_name_film" />
 
         <ImageView
+            android:layout_width="200dp"
             android:id="@+id/iv_film"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="300dp"
+            android:layout_marginTop="10dp" />
 
         <Button
             android:id="@+id/btn_select_file"
             android:text="@string/select_photo"
+            android:layout_marginTop="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
         <LinearLayout
@@ -120,7 +128,7 @@
                 android:textSize="18dp"
                 android:textStyle="bold" />
             <Spinner
-                android:id="@+id/spRoom"
+                android:id="@+id/sp_category"
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
@@ -128,12 +136,13 @@
         </LinearLayout>
 
         <RatingBar
-            android:id="@+id/rateBar"
+            android:id="@+id/rating_bar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:numStars="5"
             android:rating="3"
+            android:progressTint="@color/orange3"
             android:stepSize="1" />
     </LinearLayout>
 
@@ -152,10 +161,29 @@
 
         <Button
             android:id="@+id/btnDelete"
+            android:text="@string/delete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
-            android:text="@string/cancel" />
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnDeleteFilmInCate"
+            android:text="@string/delete_film"
+            android:visibility="gone"
+            android:layout_marginStart="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+        </Button>
 
         <Button
             android:id="@+id/btnCancel"
@@ -166,13 +194,11 @@
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rec"
+        android:id="@+id/recFilm"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-        app:layout_constraintTop_toBottomOf="@id/btn_add_or_update"
         app:spanCount="2"
-        tools:layout_editor_absoluteX="-34dp"
         tools:listitem="@layout/item_film" />
 </LinearLayout>
