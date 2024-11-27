@@ -221,6 +221,8 @@ public class DetailActivity extends AppCompatActivity implements OnClickFilmList
             ArrayAdapter<Film> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, allFilmUnknownCate);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             binding.spFilm.setAdapter(adapter);
+        }else {
+            binding.linearAddFilmInCate.setVisibility(View.GONE);
         }
 
         Toast.makeText(this, this.getResources().getString(R.string.add_film_success), Toast.LENGTH_SHORT).show();
